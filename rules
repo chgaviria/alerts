@@ -107,8 +107,80 @@ defaultRules:
     kubeProxy: false
 prometheus:
   prometheusSpec:
-    additionalScrapeConfigs: {}
-  # Prometheus Ingress configuration
+    additionalScrapeConfigs:
+      - job_name: 'blackbox'
+        metrics_path: /probe
+        params:
+          module: [http_2xx]  # Look for a HTTP 200 response.
+        static_configs:
+          - targets:
+            - https://argocd.cuemby.io   # Target to probe with https.
+            - https://grafana.cuemby.io
+            - https://harbor.cuemby.io
+            - https://notary.cuemby.io
+            - https://vault.cuemby.io
+            - https://kibana.cuemby.io
+            - https://prometheus.cuemby.io
+            - https://tekton.cuemby.io
+            - https://app.cuemby.io
+            - https://auth0.cuemby.io
+            - https://uploader.cuemby.io
+            - https://controlplane.cuemby.io
+            - https://kibana.cuemby.io
+            - https://apikong.cuemby.io
+            - https://konga.cuemby.io
+            - https://minio.cuemby.io
+            - https://apiminio.cuemby.io
+            - https://prometheus.cuemby.io
+            #- http://example.com:8080 # Target to probe with http on port 8080.
+            #- http://prometheus.io    # Target to probe with http.
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: prometheus-blackbox-exporter:9115  # The blackbox exporter's real hostname:port.
+      - job_name: 'blackbox_exporter'  # collect blackbox exporter's operational metrics.
+        static_configs:
+          - targets: ['prometheus-blackbox-exporter:9115']
+      - job_name: "blackbox-external-targets"
+        metrics_path: /probe
+        params:
+          module: [http_2xx]
+        static_configs:
+          - targets:
+            - https://www.google.com
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: prometheus-blackbox-exporter:9115
+      - job_name: "blackbox-kubernetes-services"
+        metrics_path: /probe
+        params:
+          module: [http_2xx]
+        kubernetes_sd_configs:
+        - role: service
+        relabel_configs:
+        # Example relabel to probe only some services that have "example.io/should_be_probed = true" annotation
+        #  - source_labels: [__meta_kubernetes_service_annotation_example_io_should_be_probed]
+        #    action: keep
+        #    regex: true
+          - source_labels: [__address__]
+            target_label: __param_target
+          - target_label: __address__
+            replacement:  prometheus-blackbox-exporter:9115
+          - source_labels: [__param_target]
+            target_label: instance
+          - action: labelmap
+            regex: __meta_kubernetes_service_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_service_name]
+            target_label: kubernetes_service_name
   service:
     type: ClusterIP
   ingress:
