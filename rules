@@ -172,8 +172,8 @@ prometheus:
     hosts:
         - prometheus.lab.cuemby.net
     annotations:
-      cert-manager.io/issuer: origin-ca-issuer-core
-      cert-manager.io/issuer-kind: OriginIssuer
+      cert-manager.io/issuer: origin-ca-issuer
+      cert-manager.io/issuer-kind: ClusterOriginIssuer
       cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
       external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
       external-dns.alpha.kubernetes.io/hostname: prometheus.lab.cuemby.net
