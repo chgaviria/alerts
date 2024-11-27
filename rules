@@ -114,24 +114,9 @@ prometheus:
           module: [http_2xx]  # Look for a HTTP 200 response.
         static_configs:
           - targets:
-            - https://argocd.cuemby.io   # Target to probe with https.
-            - https://grafana.cuemby.io
             - https://harbor.cuemby.io
-            - https://notary.cuemby.io
-            - https://vault.cuemby.io
-            - https://kibana.cuemby.io
-            - https://prometheus.cuemby.io
-            - https://tekton.cuemby.io
-            - https://app.cuemby.io
-            - https://auth0.cuemby.io
-            - https://uploader.cuemby.io
-            - https://controlplane.cuemby.io
-            - https://kibana.cuemby.io
-            - https://apikong.cuemby.io
-            - https://konga.cuemby.io
-            - https://minio.cuemby.io
-            - https://apiminio.cuemby.io
-            - https://prometheus.cuemby.io
+            - https://minio.dev.cuemby.net
+            - https://prometheus.prod.cuemby.net
             #- http://example.com:8080 # Target to probe with http on port 8080.
             #- http://prometheus.io    # Target to probe with http.
         relabel_configs:
@@ -150,7 +135,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - https://www.google.com
+            - https://dash.cloudflare.com
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
@@ -181,44 +166,8 @@ prometheus:
             target_label: kubernetes_namespace
           - source_labels: [__meta_kubernetes_service_name]
             target_label: kubernetes_service_name
-  service:
-    type: ClusterIP
-  ingress:
-    hosts:
-        - prometheus.dev.cuemby.net
-    annotations:
-      cert-manager.io/issuer: origin-ca-issuer
-      cert-manager.io/issuer-kind: ClusterOriginIssuer
-      cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
-      external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
-      external-dns.alpha.kubernetes.io/hostname: prometheus.dev.cuemby.net
-      nginx.ingress.kubernetes.io/whitelist-source-range: '2800:e2:2080:26ac:454d:eedf:d3d5:2b04'
-    enabled: true
-    ingressClassName: nginx
-    tls:
-      - hosts:
-          - prometheus.dev.cuemby.net
-        secretName: prometheus-dev-cuemby-net
-alertmanager:
-  enabled: true
-  config:
-    global:
-      resolve_timeout: 10m
-    route:
-      group_by: ['job']
-      group_wait: 5m
-      group_interval: 15m
-      repeat_interval: 1h
-      receiver: 'webhook'
-    receivers:
-    - name: 'webhook'
-      webhook_configs:
-      - url: 'http://prometheus-msteams:2000/alerts_dev-stg'
-        send_resolved: true
-  alertmanagerSpec:
-    configSecret: alertmanager-prometheus-kube-prometheus-alertmanager
 kubeControllerManager:
-  enabled: falspush
+  enabled: false
 kubeScheduler:
   enabled: false
 kubeEtcd:
