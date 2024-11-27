@@ -224,3 +224,5 @@ kubeScheduler:
   enabled: false
 kubeEtcd:
   enabled: false
+grafana:
+  enabled: false
