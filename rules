@@ -135,7 +135,7 @@ prometheus:
           module: [http_2xx]
         static_configs:
           - targets:
-            - https://dash.cloudflare.com
+            - https://www.google.com
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target
@@ -166,6 +166,58 @@ prometheus:
             target_label: kubernetes_namespace
           - source_labels: [__meta_kubernetes_service_name]
             target_label: kubernetes_service_name
+  service:
+    type: ClusterIP
+  ingress:
+    hosts:
+        - prometheus.lab.cuemby.net
+    annotations:
+      cert-manager.io/issuer: origin-ca-issuer-core
+      cert-manager.io/issuer-kind: OriginIssuer
+      cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
+      external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
+      external-dns.alpha.kubernetes.io/hostname: prometheus.lab.cuemby.net
+    enabled: true
+    ingressClassName: nginx
+    tls:
+      - hosts:
+          - prometheus.lab.cuemby.net
+        secretName: prometheus-lab-cuemby-net
+alertmanager:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 10m
+    route:
+      group_by: ['job']
+      group_wait: 5m
+      group_interval: 15m
+      repeat_interval: 1h
+      receiver: 'webhook'
+    receivers:
+    - name: 'webhook'
+      webhook_configs:
+      - url: 'http://prometheus-msteams:2000/alerts'
+        send_resolved: true
+  alertmanagerSpec:
+    configSecret: myalertmanager
+  service:
+    type: ClusterIP
+  ingress:
+    hosts:
+      - alertmanager.lab.cuemby.net
+    annotations:
+      cert-manager.io/issuer: origin-ca-issuer-core
+      cert-manager.io/issuer-kind: OriginIssuer
+      cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
+      external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
+      external-dns.alpha.kubernetes.io/hostname: alertmanager.lab.cuemby.net
+    enabled: true
+    ingressClassName: nginx
+    tls:
+      - hosts:
+          - alertmanager.lab.cuemby.net
+        secretName: alertmanager-lab-cuemby-net
 kubeControllerManager:
   enabled: false
 kubeScheduler:
