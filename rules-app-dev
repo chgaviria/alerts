@@ -107,6 +107,11 @@ defaultRules:
     kubeProxy: false
 prometheus:
   prometheusSpec:
+    remoteWrite:
+      - url: "http://vmauth.dev.cuemby.net/insert/0/prometheus"
+        basic_auth:
+          username: "victoria-metrics-server"
+          password: "prometheus-pass"
     additionalScrapeConfigs:
       - job_name: 'blackbox'
         metrics_path: /probe
