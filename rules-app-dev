@@ -3,6 +3,14 @@ additionalPrometheusRulesMap:
     groups:
     - name: rules-cuemby
       rules:
+        - alert: PrometheusHighCPU
+          expr: process_cpu_seconds_total{job="prometheus"} > 80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Prometheus está usando mucha CPU"
+            description: "El consumo de CPU de Prometheus está por encima del 80% por más de 5 minutos."
         #Host and hardware : node-exporter
         - alert: HostOutOfMemory
           expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
@@ -107,11 +115,17 @@ defaultRules:
     kubeProxy: false
 prometheus:
   prometheusSpec:
+    scrapeInterval: 30s
+    evaluationInterval: 30s
     remoteWrite:
-      - url: "http://vmauth.dev.cuemby.net/insert/0/prometheus"
-        basic_auth:
-          username: "victoria-metrics-server"
-          password: "prometheus-pass"
+      - url: "https://vmauth.dev.cuemby.net/prometheus/api/v1/write"
+        basicAuth:
+          username:
+            name: victoria-secret
+            key: username
+          password: 
+            name: victoria-secret
+            key: password
     additionalScrapeConfigs:
       - job_name: 'blackbox'
         metrics_path: /probe
