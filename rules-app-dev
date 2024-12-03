@@ -135,6 +135,7 @@ prometheus:
           - targets:
             - https://harbor.cuemby.io
             - https://minio.dev.cuemby.net
+            - https://walrus.dev.cuemby.net/
             - https://prometheus.prod.cuemby.net
             #- http://example.com:8080 # Target to probe with http on port 8080.
             #- http://prometheus.io    # Target to probe with http.
