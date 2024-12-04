@@ -178,7 +178,7 @@ prometheus:
       cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
       external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
       external-dns.alpha.kubernetes.io/hostname: prometheus.dev.cuemby.net
-      nginx.ingress.kubernetes.io/whitelist-source-range: 212.2.241.228, 3.212.27.90
+      nginx.ingress.kubernetes.io/whitelist-source-range: 212.2.241.228, 3.212.27.90, 181.63.178.19
     enabled: true
     ingressClassName: nginx
     tls:
