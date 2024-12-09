@@ -107,6 +107,9 @@ defaultRules:
     kubeProxy: false
 prometheus:
   prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels:
+        release: prometheus
     additionalScrapeConfigs:
       - job_name: 'blackbox'
         metrics_path: /probe
