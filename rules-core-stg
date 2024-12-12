@@ -107,6 +107,18 @@ defaultRules:
     kubeProxy: false
 prometheus:
   prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 15Gi
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: civo-volume
+    persistentVolumeClaimRetentionPolicy:
+      whenScaled: Retain
+      whenDeleted: Retain
     additionalScrapeConfigs:
       - job_name: 'blackbox'
         metrics_path: /probe
